@@ -32,6 +32,25 @@ async function run() {
         // Send the info to the db
         const db = client.db('mentora_db');
         const coursesCollection = db.collection('courses');
+        // login users
+        const usersCollection = db.collection('users')
+
+        // login users API from login 
+        app.post('/users', async (req, res) => {
+            const newUser = req.body;
+            const email = req.body.email;
+            const query = { email: email }
+            const existingUser = await usersCollection.findOne(query);
+
+            if (existingUser) {
+                res.send({ message: 'user already exits. do not need to insert again' })
+            }
+            else {
+                const result = await usersCollection.insertOne(newUser);
+                res.send(result);
+            }
+        })
+
 
          // Read-search or find data from db
         app.get('/courses', async (req, res) => {
@@ -49,6 +68,15 @@ async function run() {
             const cursor = coursesCollection.find();
             const result = await cursor.toArray();
             res.send(result)
+        })
+
+        // Top Courses API
+        app.get('/top-courses', async (req, res) => {
+            // const cursor = coursesCollection.find().sort({ created_at: -1 }).limit(6);
+            // const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
+            const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
+            const result = await cursor.toArray();
+            res.send(result);
         })
 
         // Read Read-search or find by ID
