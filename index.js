@@ -34,6 +34,7 @@ async function run() {
         const coursesCollection = db.collection('courses');
         // login users
         const usersCollection = db.collection('users')
+        const addNewCoursesCollection = db.collection('add_new_courses')
 
         // login users API from login 
         app.post('/users', async (req, res) => {
@@ -74,7 +75,7 @@ async function run() {
         app.get('/top-courses', async (req, res) => {
             // const cursor = coursesCollection.find().sort({ created_at: -1 }).limit(6);
             // const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
-            const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
+            const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(8);
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -102,6 +103,20 @@ async function run() {
             const result = await coursesCollection.updateOne(query, update)
             res.send(result)
         })
+        // MY ADDED COURSES RELATED API
+        // add new course related API
+        app.post('/add_new_courses', async (req, res) => {
+            const addNewCourse = req.body;
+            const result = await addNewCoursesCollection.insertOne(addNewCourse);
+            res.send(result)
+        })
+        // add new course related API
+        app.get('/add_new_courses', async (req, res) => {
+            const cursor = addNewCoursesCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
 
         // Delete db data
         app.delete('/courses/:id', async (req, res) => {
