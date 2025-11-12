@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 })
 
 async function run() {
-    try { 
+    try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
@@ -35,6 +35,7 @@ async function run() {
         // login users
         const usersCollection = db.collection('users')
         const addNewCoursesCollection = db.collection('add_new_courses')
+        const enrolledCoursesCollection = db.collection('enrolledCourses')
 
         // login users API from login 
         app.post('/users', async (req, res) => {
@@ -53,7 +54,7 @@ async function run() {
         })
 
 
-         // Read-search or find data from db
+        // Read-search or find data from db
         app.get('/courses', async (req, res) => {
             // const projectFields = {_id: 0, title: 1,category: 1,description:1 }
             // sort 1 or -1, limit(5), 
@@ -83,7 +84,7 @@ async function run() {
         // Read-search or find by ID
         app.get('/courses/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id) }  
+            const query = { _id: new ObjectId(id) }
             const result = await coursesCollection.findOne(query);
             res.send(result);
         })
@@ -126,17 +127,112 @@ async function run() {
         app.get('/add_new_courses/:id', async (req, res) => {
             const id = req.params.id;
             console.log("Received ID:", id);
-            const query = { _id: new ObjectId(id) }  
+            const query = { _id: new ObjectId(id) }
             const result = await addNewCoursesCollection.findOne(query);
             res.send(result);
         })
+        // app.put("/add_new_courses/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const updatedCourse = req.body;
+        //     const result = await addNewCoursesCollection.updateOne(
+        //         { _id: new ObjectId(id) },
+        //         { $set: updatedCourse }
+        //     );
+        //     res.send(result);
+        // });
         app.delete('/add_new_courses/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await addNewCoursesCollection.deleteOne(query);
             res.send(result);
         })
+
+        app.put("/add_new_courses/:id", async (req, res) => {
+            try {
+                const id = req.params.id;
+                const updatedCourse = req.body;
+
+                const query = { _id: new ObjectId(id) };
+
+                const updateDoc = {
+                    $set: {
+                        title: updatedCourse.title,
+                        description: updatedCourse.description,
+                        price: updatedCourse.price,
+                        duration: updatedCourse.duration,
+                        category: updatedCourse.category,
+                        image: updatedCourse.image,
+                    },
+                };
+
+                const result = await addNewCoursesCollection.updateOne(query, updateDoc);
+
+                res.send(result);
+            } catch (error) {
+                console.error("Error updating course:", error);
+                res.status(500).send({ message: "Error updating course", error });
+            }
+        });
+
         // ---------------MY ADDED COURSES RELATED API-----End Here
+
+        // ENROLLED DATA API START HERE
+
+        // Add a course to enrolled list
+        app.post('/enrolledCourses', async (req, res) => {
+            const enrolledData = req.body;
+            const result = await enrolledCoursesCollection.insertOne(enrolledData);
+            res.send(result);
+        });
+        app.get('/enrolledCourses', async (req, res) => {
+            const cursor = enrolledCoursesCollection.find()
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // Get enrolled courses by ID
+        app.get('/enrolledCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log("Received ID:", id);
+            const query = { _id: new ObjectId(id) }
+            const result = await enrolledCoursesCollection.findOne(query);
+            res.send(result);
+        })
+        // Get enrolled courses by user email
+        app.get('/enrolledCourses/user/:email', async (req, res) => {
+            const email = req.params.email;
+
+            try {
+                const cursor = enrolledCoursesCollection.find({ userEmail: email });
+                const result = await cursor.toArray();
+                res.send(result);
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({ error: "Failed to fetch courses for user" });
+            }
+        });
+
+        // Delete enrolled course by ID
+        app.delete('/enrolledCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            try {
+                const result = await enrolledCoursesCollection.deleteOne({ _id: new ObjectId(id) });
+                res.send(result);
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({ error: "Failed to remove the course" });
+            }
+        });
+
+        // Remove enrolled courses by ID
+        app.delete('/enrolledCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await enrolledCoursesCollection.deleteOne({ _id: new ObjectId(id) });
+            res.send(result);
+        });
+
+        // ENROLLED DATA API END HERE
+
 
         // Delete db data
         app.delete('/courses/:id', async (req, res) => {
