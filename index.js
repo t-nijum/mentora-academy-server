@@ -130,6 +130,12 @@ async function run() {
             const result = await addNewCoursesCollection.findOne(query);
             res.send(result);
         })
+        app.delete('/add_new_courses/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await addNewCoursesCollection.deleteOne(query);
+            res.send(result);
+        })
         // ---------------MY ADDED COURSES RELATED API-----End Here
 
         // Delete db data
