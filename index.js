@@ -80,7 +80,7 @@ async function run() {
             res.send(result);
         })
 
-        // Read Read-search or find by ID
+        // Read-search or find by ID
         app.get('/courses/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }  
@@ -110,13 +110,27 @@ async function run() {
             const result = await addNewCoursesCollection.insertOne(addNewCourse);
             res.send(result)
         })
-        // add new course related API
+        // find new course related API
         app.get('/add_new_courses', async (req, res) => {
-            const cursor = addNewCoursesCollection.find();
+            const email = req.query.email;
+            const query = {};
+            if (email) {
+                query.email = email;
+            }
+            const cursor = addNewCoursesCollection.find(query);
+            // const cursor = addNewCoursesCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
-
+        // find new course related API by ID
+        app.get('/add_new_courses/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log("Received ID:", id);
+            const query = { _id: new ObjectId(id) }  
+            const result = await addNewCoursesCollection.findOne(query);
+            res.send(result);
+        })
+        // ---------------MY ADDED COURSES RELATED API-----End Here
 
         // Delete db data
         app.delete('/courses/:id', async (req, res) => {
