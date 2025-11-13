@@ -59,7 +59,6 @@ async function run() {
             // const projectFields = {_id: 0, title: 1,category: 1,description:1 }
             // sort 1 or -1, limit(5), 
             // const cursor = productCollection.find().sort({price_min: -1}).skip(2).limit(5).project(projectFields);
-
             console.log(req.query);
             // const email = req.query.email;
             // const query = {};
@@ -166,8 +165,6 @@ async function run() {
             }
         });
 
-        // ---------------MY ADDED COURSES RELATED API-----End Here
-
         // --------------ENROLLED DATA API START HERE-------------------
 
         // Add a course to enrolled list
@@ -218,10 +215,8 @@ async function run() {
                 res.status(500).send({ error: "Failed to remove the course" });
             }
         });
-        
+
         // ENROLLED DATA API END HERE--------------------------------
-
-
         // Delete db data
         app.delete('/courses/:id', async (req, res) => {
             const id = req.params.id;
