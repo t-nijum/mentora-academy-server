@@ -76,7 +76,7 @@ async function run() {
         app.get('/top-courses', async (req, res) => {
             // const cursor = coursesCollection.find().sort({ created_at: -1 }).limit(6);
             // const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
-            const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(8);
+            const cursor = coursesCollection.find().sort({ ratingAvg: -1 }).limit(6);
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -131,15 +131,7 @@ async function run() {
             const result = await addNewCoursesCollection.findOne(query);
             res.send(result);
         })
-        // app.put("/add_new_courses/:id", async (req, res) => {
-        //     const id = req.params.id;
-        //     const updatedCourse = req.body;
-        //     const result = await addNewCoursesCollection.updateOne(
-        //         { _id: new ObjectId(id) },
-        //         { $set: updatedCourse }
-        //     );
-        //     res.send(result);
-        // });
+
         app.delete('/add_new_courses/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
@@ -176,7 +168,7 @@ async function run() {
 
         // ---------------MY ADDED COURSES RELATED API-----End Here
 
-        // ENROLLED DATA API START HERE
+        // --------------ENROLLED DATA API START HERE-------------------
 
         // Add a course to enrolled list
         app.post('/enrolledCourses', async (req, res) => {
@@ -212,26 +204,22 @@ async function run() {
             }
         });
 
-        // Delete enrolled course by ID
         app.delete('/enrolledCourses/:id', async (req, res) => {
             const id = req.params.id;
+
             try {
-                const result = await enrolledCoursesCollection.deleteOne({ _id: new ObjectId(id) });
-                res.send(result);
+                const result = await enrolledCoursesCollection.deleteOne({ _id: id }); // match string _id
+                if (result.deletedCount === 0) {
+                    return res.status(404).send({ error: "Course not found" });
+                }
+                res.send({ success: true, message: "Course removed successfully" });
             } catch (err) {
                 console.error(err);
                 res.status(500).send({ error: "Failed to remove the course" });
             }
         });
-
-        // Remove enrolled courses by ID
-        app.delete('/enrolledCourses/:id', async (req, res) => {
-            const id = req.params.id;
-            const result = await enrolledCoursesCollection.deleteOne({ _id: new ObjectId(id) });
-            res.send(result);
-        });
-
-        // ENROLLED DATA API END HERE
+        
+        // ENROLLED DATA API END HERE--------------------------------
 
 
         // Delete db data
