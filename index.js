@@ -5,7 +5,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
-console.log(process.env);
+// console.log(process.env);
 
 // middleware
 app.use(cors());
@@ -208,7 +208,7 @@ async function run() {
             const id = req.params.id;
 
             try {
-                const result = await enrolledCoursesCollection.deleteOne({ _id: id }); // match string _id
+                const result = await enrolledCoursesCollection.deleteOne({ _id: id });
                 if (result.deletedCount === 0) {
                     return res.status(404).send({ error: "Course not found" });
                 }
@@ -229,7 +229,7 @@ async function run() {
         })
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
